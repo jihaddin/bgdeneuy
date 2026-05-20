@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BG DEN EUY</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">🎮 BG DEN EUY</div>
+            <ul class="nav-links">
+                <li><span class="welcome-text">Halo, <strong>{{.Username}}</strong></span></li>
+                <li><a href="/logout" class="btn-nav">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p>Selamat datang kembali, <strong>{{.Username}}</strong>! Pilih game dan mulai bermain.</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-info">
+                        <h3>Pemain</h3>
+                        <p>{{.Username}}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-info">
+                        <h3>Game Tersedia</h3>
+                        <p>4 Game</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🟢</div>
+                    <div class="stat-info">
+                        <h3>Status</h3>
+                        <p>Online</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game List -->
+            <div class="dashboard-section">
+                <h2>🕹️ Pilih Game</h2>
+                <div class="game-grid">
+                    <a href="/game/tebak-angka" class="game-card">
+                        <div class="game-card-icon">🎲</div>
+                        <h3>Tebak Angka</h3>
+                        <p>Tebak angka yang tersembunyi antara 1 sampai 100. Berapa percobaan yang kamu butuhkan?</p>
+                        <span class="game-badge">1 Pemain</span>
+                    </a>
+                    <a href="/game/tictactoe" class="game-card">
+                        <div class="game-card-icon">♟️</div>
+                        <h3>Tic Tac Toe</h3>
+                        <p>Tantang komputer dalam permainan klasik Tic Tac Toe. Bisakah kamu menang?</p>
+                        <span class="game-badge">VS Komputer</span>
+                    </a>
+                    <a href="/game/snake" class="game-card">
+                        <div class="game-card-icon">🐍</div>
+                        <h3>Snake</h3>
+                        <p>Kendalikan ular dan makan sebanyak mungkin makanan tanpa menabrak dinding.</p>
+                        <span class="game-badge">Arcade</span>
+                    </a>
+                    <a href="/game/kuis" class="game-card">
+                        <div class="game-card-icon">❓</div>
+                        <h3>Kuis</h3>
+                        <p>Uji pengetahuanmu dengan pertanyaan pilihan ganda dari berbagai kategori.</p>
+                        <span class="game-badge">Trivia</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 BG DEN EUY. Semua hak dilindungi.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake - BG DEN EUY</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">🎮 BG DEN EUY</div>
+            <ul class="nav-links">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/logout" class="btn-nav">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="game-page">
+        <div class="game-container">
+            <a href="/dashboard" class="back-link">← Kembali ke Dashboard</a>
+            <h1 class="game-title">🐍 Snake</h1>
+            <p class="game-subtitle">Makan makanan sebanyak mungkin tanpa menabrak dinding atau tubuhmu sendiri!</p>
+
+            <div class="game-box">
+                <div class="game-score">Skor: <span id="score">0</span> &nbsp;|&nbsp; Rekor: <span id="highscore">0</span></div>
+                <div class="snake-controls">Gunakan tombol ⬆️⬇️⬅️➡️ atau WASD untuk bergerak</div>
+                <canvas id="snake-canvas" width="400" height="400"></canvas>
+                <div id="snake-message" style="color:#a78bfa; font-size:1.1rem; margin-bottom:16px;"></div>
+                <button class="btn-game" id="startBtn" onclick="startGame()">▶️ Mulai</button>
+                <a href="/dashboard" class="btn-game btn-game-outline">Kembali</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 BG DEN EUY. Semua hak dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        const GRID = 20;
+        const COLS = canvas.width / GRID;
+        const ROWS = canvas.height / GRID;
+
+        let snake, dir, food, score, highscore = 0, gameLoop, running = false;
+
+        function startGame() {
+            snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+            dir = {x: 1, y: 0};
+            score = 0;
+            running = true;
+            document.getElementById('score').textContent = 0;
+            document.getElementById('snake-message').textContent = '';
+            document.getElementById('startBtn').textContent = '🔄 Restart';
+            placeFood();
+            clearInterval(gameLoop);
+            gameLoop = setInterval(update, 130);
+        }
+
+        function placeFood() {
+            let pos;
+            do {
+                pos = {x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS)};
+            } while (snake.some(s => s.x === pos.x && s.y === pos.y));
+            food = pos;
+        }
+
+        function update() {
+            const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+
+            // Cek tabrakan dinding
+            if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
+                endGame(); return;
+            }
+            // Cek tabrakan tubuh sendiri
+            if (snake.some(s => s.x === head.x && s.y === head.y)) {
+                endGame(); return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                document.getElementById('score').textContent = score;
+                if (score > highscore) {
+                    highscore = score;
+                    document.getElementById('highscore').textContent = highscore;
+                }
+                placeFood();
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function draw() {
+            // Background
+            ctx.fillStyle = '#0f0f1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid lines (subtle)
+            ctx.strokeStyle = '#1a1a2e';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath(); ctx.moveTo(i * GRID, 0); ctx.lineTo(i * GRID, canvas.height); ctx.stroke();
+            }
+            for (let i = 0; i <= ROWS; i++) {
+                ctx.beginPath(); ctx.moveTo(0, i * GRID); ctx.lineTo(canvas.width, i * GRID); ctx.stroke();
+            }
+
+            // Snake
+            snake.forEach((seg, i) => {
+                ctx.fillStyle = i === 0 ? '#a78bfa' : '#7c3aed';
+                ctx.beginPath();
+                ctx.roundRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2, 4);
+                ctx.fill();
+            });
+
+            // Food
+            ctx.fillStyle = '#f87171';
+            ctx.beginPath();
+            ctx.arc(food.x * GRID + GRID/2, food.y * GRID + GRID/2, GRID/2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function endGame() {
+            clearInterval(gameLoop);
+            running = false;
+            document.getElementById('snake-message').textContent = `Game Over! Skor kamu: ${score}`;
+            // Draw game over overlay
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#a78bfa';
+            ctx.font = 'bold 28px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 10);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '18px Segoe UI';
+            ctx.fillText(`Skor: ${score}`, canvas.width/2, canvas.height/2 + 24);
+        }
+
+        // Draw initial state
+        ctx.fillStyle = '#0f0f1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '18px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Tekan Mulai untuk bermain', canvas.width/2, canvas.height/2);
+
+        document.addEventListener('keydown', e => {
+            if (!running) return;
+            const keys = {
+                ArrowUp: {x:0,y:-1}, ArrowDown: {x:0,y:1},
+                ArrowLeft: {x:-1,y:0}, ArrowRight: {x:1,y:0},
+                w: {x:0,y:-1}, s: {x:0,y:1}, a: {x:-1,y:0}, d: {x:1,y:0},
+                W: {x:0,y:-1}, S: {x:0,y:1}, A: {x:-1,y:0}, D: {x:1,y:0}
+            };
+            const newDir = keys[e.key];
+            if (newDir) {
+                // Cegah balik arah
+                if (newDir.x !== -dir.x || newDir.y !== -dir.y) {
+                    dir = newDir;
+                }
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

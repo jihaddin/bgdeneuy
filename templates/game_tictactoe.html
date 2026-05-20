@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - BG DEN EUY</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">🎮 BG DEN EUY</div>
+            <ul class="nav-links">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/logout" class="btn-nav">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="game-page">
+        <div class="game-container">
+            <a href="/dashboard" class="back-link">← Kembali ke Dashboard</a>
+            <h1 class="game-title">♟️ Tic Tac Toe</h1>
+            <p class="game-subtitle">Kamu adalah ✖️, komputer adalah ⭕. Giliran pertama milikmu!</p>
+
+            <div class="game-box">
+                <div class="game-score">
+                    Menang: <span id="wins">0</span> &nbsp;|&nbsp;
+                    Seri: <span id="draws">0</span> &nbsp;|&nbsp;
+                    Kalah: <span id="losses">0</span>
+                </div>
+
+                <div class="ttt-status" id="status">Giliran kamu (✖️)</div>
+
+                <div class="ttt-board" id="board">
+                    <div class="ttt-cell" onclick="playerMove(0)"></div>
+                    <div class="ttt-cell" onclick="playerMove(1)"></div>
+                    <div class="ttt-cell" onclick="playerMove(2)"></div>
+                    <div class="ttt-cell" onclick="playerMove(3)"></div>
+                    <div class="ttt-cell" onclick="playerMove(4)"></div>
+                    <div class="ttt-cell" onclick="playerMove(5)"></div>
+                    <div class="ttt-cell" onclick="playerMove(6)"></div>
+                    <div class="ttt-cell" onclick="playerMove(7)"></div>
+                    <div class="ttt-cell" onclick="playerMove(8)"></div>
+                </div>
+
+                <button class="btn-game" onclick="resetGame()">🔄 Main Lagi</button>
+                <a href="/dashboard" class="btn-game btn-game-outline">Kembali</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 BG DEN EUY. Semua hak dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        let board = Array(9).fill('');
+        let gameOver = false;
+        let wins = 0, draws = 0, losses = 0;
+
+        const winCombos = [
+            [0,1,2],[3,4,5],[6,7,8],
+            [0,3,6],[1,4,7],[2,5,8],
+            [0,4,8],[2,4,6]
+        ];
+
+        function checkWinner(b, player) {
+            return winCombos.some(combo => combo.every(i => b[i] === player));
+        }
+
+        function isFull(b) {
+            return b.every(cell => cell !== '');
+        }
+
+        function minimax(b, isMax) {
+            if (checkWinner(b, '⭕')) return 10;
+            if (checkWinner(b, '✖️')) return -10;
+            if (isFull(b)) return 0;
+
+            let best = isMax ? -Infinity : Infinity;
+            for (let i = 0; i < 9; i++) {
+                if (b[i] === '') {
+                    b[i] = isMax ? '⭕' : '✖️';
+                    let score = minimax(b, !isMax);
+                    b[i] = '';
+                    best = isMax ? Math.max(best, score) : Math.min(best, score);
+                }
+            }
+            return best;
+        }
+
+        function computerMove() {
+            let bestScore = -Infinity, bestMove = -1;
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = '⭕';
+                    let score = minimax(board, false);
+                    board[i] = '';
+                    if (score > bestScore) { bestScore = score; bestMove = i; }
+                }
+            }
+            if (bestMove !== -1) {
+                board[bestMove] = '⭕';
+                renderBoard();
+                if (checkWinner(board, '⭕')) {
+                    document.getElementById('status').textContent = '😢 Komputer menang!';
+                    losses++; updateScore(); gameOver = true;
+                } else if (isFull(board)) {
+                    document.getElementById('status').textContent = '🤝 Seri!';
+                    draws++; updateScore(); gameOver = true;
+                } else {
+                    document.getElementById('status').textContent = 'Giliran kamu (✖️)';
+                }
+            }
+        }
+
+        function playerMove(index) {
+            if (gameOver || board[index] !== '') return;
+            board[index] = '✖️';
+            renderBoard();
+            if (checkWinner(board, '✖️')) {
+                document.getElementById('status').textContent = '🎉 Kamu menang!';
+                wins++; updateScore(); gameOver = true;
+            } else if (isFull(board)) {
+                document.getElementById('status').textContent = '🤝 Seri!';
+                draws++; updateScore(); gameOver = true;
+            } else {
+                document.getElementById('status').textContent = 'Giliran komputer...';
+                setTimeout(computerMove, 400);
+            }
+        }
+
+        function renderBoard() {
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach((cell, i) => {
+                cell.textContent = board[i];
+                if (board[i] !== '') cell.classList.add('taken');
+                else cell.classList.remove('taken');
+            });
+        }
+
+        function updateScore() {
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('draws').textContent = draws;
+            document.getElementById('losses').textContent = losses;
+        }
+
+        function resetGame() {
+            board = Array(9).fill('');
+            gameOver = false;
+            renderBoard();
+            document.getElementById('status').textContent = 'Giliran kamu (✖️)';
+        }
+    </script>
+</body>
+</html>

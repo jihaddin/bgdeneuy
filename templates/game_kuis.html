@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis - BG DEN EUY</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">🎮 BG DEN EUY</div>
+            <ul class="nav-links">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/logout" class="btn-nav">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="game-page">
+        <div class="game-container">
+            <a href="/dashboard" class="back-link">← Kembali ke Dashboard</a>
+            <h1 class="game-title">❓ Kuis</h1>
+            <p class="game-subtitle">Jawab 10 pertanyaan pilihan ganda. Seberapa pintar kamu?</p>
+
+            <div class="game-box">
+                <div id="quiz-area">
+                    <div class="quiz-progress" id="progress">Soal 1 dari 10</div>
+                    <div class="game-score">Skor: <span id="quizScore">0</span></div>
+                    <div class="quiz-question" id="question"></div>
+                    <div class="quiz-options" id="options"></div>
+                    <div class="game-message" id="quizMessage"></div>
+                </div>
+
+                <div id="result-area" style="display:none; text-align:center;">
+                    <div style="font-size:3rem; margin-bottom:16px;" id="resultEmoji"></div>
+                    <div class="game-message" id="finalMessage"></div>
+                    <div style="color:#64748b; margin-bottom:24px;" id="finalScore"></div>
+                    <button class="btn-game" onclick="restartQuiz()">🔄 Main Lagi</button>
+                    <a href="/dashboard" class="btn-game btn-game-outline">Kembali</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 BG DEN EUY. Semua hak dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        const allQuestions = [
+            { q: "Apa ibu kota Indonesia?", options: ["Surabaya", "Bandung", "Jakarta", "Medan"], answer: 2 },
+            { q: "Berapa hasil dari 7 × 8?", options: ["54", "56", "58", "64"], answer: 1 },
+            { q: "Planet terbesar di tata surya adalah?", options: ["Saturnus", "Neptunus", "Uranus", "Jupiter"], answer: 3 },
+            { q: "Siapa penemu bola lampu?", options: ["Nikola Tesla", "Thomas Edison", "Albert Einstein", "Isaac Newton"], answer: 1 },
+            { q: "Bahasa pemrograman apa yang digunakan untuk membuat web server ini?", options: ["Python", "Java", "Go", "Rust"], answer: 2 },
+            { q: "Berapa jumlah provinsi di Indonesia (2024)?", options: ["34", "36", "37", "38"], answer: 3 },
+            { q: "Apa nama gunung tertinggi di dunia?", options: ["K2", "Everest", "Kilimanjaro", "Elbrus"], answer: 1 },
+            { q: "HTML adalah singkatan dari?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyper Transfer Markup Link", "Home Tool Markup Language"], answer: 0 },
+            { q: "Berapa sisi yang dimiliki segitiga?", options: ["2", "3", "4", "5"], answer: 1 },
+            { q: "Apa warna bendera Indonesia?", options: ["Merah Putih Biru", "Merah Putih", "Merah Kuning", "Putih Merah Hijau"], answer: 1 },
+            { q: "Siapa presiden pertama Indonesia?", options: ["Soeharto", "Habibie", "Soekarno", "Megawati"], answer: 2 },
+            { q: "Berapa byte dalam 1 kilobyte?", options: ["100", "512", "1000", "1024"], answer: 3 },
+        ];
+
+        let questions = [], current = 0, score = 0, answered = false;
+
+        function shuffle(arr) {
+            return [...arr].sort(() => Math.random() - 0.5);
+        }
+
+        function startQuiz() {
+            questions = shuffle(allQuestions).slice(0, 10);
+            current = 0; score = 0; answered = false;
+            document.getElementById('quizScore').textContent = 0;
+            document.getElementById('quiz-area').style.display = 'block';
+            document.getElementById('result-area').style.display = 'none';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            const q = questions[current];
+            document.getElementById('progress').textContent = `Soal ${current + 1} dari ${questions.length}`;
+            document.getElementById('question').textContent = q.q;
+            document.getElementById('quizMessage').textContent = '';
+
+            const optionsEl = document.getElementById('options');
+            optionsEl.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(i, btn);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(index, btn) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[current];
+            const allBtns = document.querySelectorAll('.quiz-option');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (index === q.answer) {
+                btn.classList.add('correct');
+                score++;
+                document.getElementById('quizScore').textContent = score;
+                document.getElementById('quizMessage').textContent = '✅ Benar!';
+            } else {
+                btn.classList.add('wrong');
+                allBtns[q.answer].classList.add('correct');
+                document.getElementById('quizMessage').textContent = '❌ Salah!';
+            }
+
+            setTimeout(() => {
+                current++;
+                if (current < questions.length) {
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1200);
+        }
+
+        function showResult() {
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+
+            const pct = (score / questions.length) * 100;
+            let emoji = '😢', msg = 'Jangan menyerah, coba lagi!';
+            if (pct >= 90) { emoji = '🏆'; msg = 'Luar biasa! Kamu jenius!'; }
+            else if (pct >= 70) { emoji = '🎉'; msg = 'Bagus sekali! Hampir sempurna!'; }
+            else if (pct >= 50) { emoji = '👍'; msg = 'Lumayan! Masih bisa lebih baik.'; }
+
+            document.getElementById('resultEmoji').textContent = emoji;
+            document.getElementById('finalMessage').textContent = msg;
+            document.getElementById('finalScore').textContent = `Skor kamu: ${score} / ${questions.length} (${pct}%)`;
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        // Mulai otomatis
+        startQuiz();
+    </script>
+</body>
+</html>

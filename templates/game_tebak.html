@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tebak Angka - BG DEN EUY</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">🎮 BG DEN EUY</div>
+            <ul class="nav-links">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/logout" class="btn-nav">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="game-page">
+        <div class="game-container">
+            <a href="/dashboard" class="back-link">← Kembali ke Dashboard</a>
+            <h1 class="game-title">🎲 Tebak Angka</h1>
+            <p class="game-subtitle">Tebak angka antara 1 sampai 100. Kamu punya 10 kesempatan!</p>
+
+            <div class="game-box">
+                <div class="game-score" id="scoreInfo">Percobaan: <span id="attempts">0</span> / 10</div>
+                <div class="game-message" id="message">Masukkan tebakan pertamamu!</div>
+                <div class="hint-text" id="hint"></div>
+                <div class="attempt-text" id="attemptList"></div>
+
+                <div id="inputArea">
+                    <input type="number" class="game-input" id="guessInput" min="1" max="100" placeholder="1 - 100">
+                    <br>
+                    <button class="btn-game" onclick="checkGuess()">Tebak</button>
+                </div>
+
+                <div id="resultArea" style="display:none;">
+                    <button class="btn-game" onclick="resetGame()">🔄 Main Lagi</button>
+                    <a href="/dashboard" class="btn-game btn-game-outline">Kembali</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 BG DEN EUY. Semua hak dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        let secret = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+        const maxAttempts = 10;
+        let history = [];
+
+        function checkGuess() {
+            const input = document.getElementById('guessInput');
+            const guess = parseInt(input.value);
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                document.getElementById('message').textContent = 'Masukkan angka antara 1 dan 100!';
+                return;
+            }
+
+            attempts++;
+            history.push(guess);
+            document.getElementById('attempts').textContent = attempts;
+            document.getElementById('attemptList').textContent = 'Tebakan: ' + history.join(', ');
+            input.value = '';
+
+            if (guess === secret) {
+                document.getElementById('message').textContent = '🎉 Selamat! Kamu berhasil menebak!';
+                document.getElementById('hint').textContent = `Angkanya adalah ${secret}. Butuh ${attempts} percobaan.`;
+                endGame();
+            } else if (attempts >= maxAttempts) {
+                document.getElementById('message').textContent = '😢 Game Over! Kehabisan kesempatan.';
+                document.getElementById('hint').textContent = `Angka yang benar adalah ${secret}.`;
+                endGame();
+            } else if (guess < secret) {
+                document.getElementById('message').textContent = '📈 Terlalu kecil! Coba lebih besar.';
+                document.getElementById('hint').textContent = `Sisa ${maxAttempts - attempts} kesempatan.`;
+            } else {
+                document.getElementById('message').textContent = '📉 Terlalu besar! Coba lebih kecil.';
+                document.getElementById('hint').textContent = `Sisa ${maxAttempts - attempts} kesempatan.`;
+            }
+        }
+
+        function endGame() {
+            document.getElementById('inputArea').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'block';
+        }
+
+        function resetGame() {
+            secret = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            history = [];
+            document.getElementById('attempts').textContent = '0';
+            document.getElementById('message').textContent = 'Masukkan tebakan pertamamu!';
+            document.getElementById('hint').textContent = '';
+            document.getElementById('attemptList').textContent = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('inputArea').style.display = 'block';
+            document.getElementById('resultArea').style.display = 'none';
+        }
+
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkGuess();
+        });
+    </script>
+</body>
+</html>
