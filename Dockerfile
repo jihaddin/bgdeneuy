@@ -10,7 +10,7 @@ RUN go build -o main .
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/main .
-COPY templates/ templates/
-COPY static/ static/
+COPY templates/ ./templates/
+COPY static/ ./static/
 EXPOSE 8080
 CMD ["./main"]
